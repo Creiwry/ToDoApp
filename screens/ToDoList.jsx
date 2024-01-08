@@ -6,7 +6,7 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, Pressable, Keyboar
 
 
 const ToDoList = () => {
-  const [task, setTask] = React.useState({text: '', done: false});
+  const [task, setTask] = useState({text: '', done: false});
   const [tasks, setTasks] = useState([]);
 
   let [fontsLoaded] = useFonts({

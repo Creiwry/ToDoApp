@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 import { useFonts, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StyleSheet, Text, View, TextInput, Button, TouchableOpacity, Pressable } from 'react-native';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView } from 'react-native';
 
 
 const ToDoList = () => {
@@ -76,28 +76,16 @@ const ToDoList = () => {
     <View 
       style={styles.screen}
     >
-        <View
-          style={styles.headingContainer}
-        >
-          <Text
-            style={styles.headingText}
-          >
-              I need to...
-          </Text>
-        </View>
-        <View 
-      style={{
-          flex: 4,
-        }}>
-        <Pressable 
-          style={styles.button}
-          onPress={handleClear}>
-          <Text
-          style={styles.buttonText}>
-            Clear Completed Tasks
-          </Text>
-          </Pressable>
-        {tasks.map((t, index) => (
+    <View style={{flex: 4}}>
+        <TextInput 
+          value={task.text}
+          onChangeText={(text) => setTask({text: text, done: false})}
+          onSubmitEditing={saveTask}
+          style={styles.textInput}
+          placeholderTextColor='white'
+          placeholder='Type here to add task!'>
+        </TextInput>
+      {tasks.map((t, index) => (
         <View key={index} style={styles.taskContainer}>
           <TouchableOpacity
             key={index}
@@ -108,8 +96,8 @@ const ToDoList = () => {
               style={[
                 styles.checkbox,
                 {
-                  backgroundColor: t.done ? 'green' : 'white',
-                  borderColor: t.done ? 'green' : 'black',
+                  backgroundColor: t.done ? '#54428e' : 'white',
+                  borderColor: t.done ? '#54428e' : 'black',
                 },
               ]}
             >
@@ -120,25 +108,15 @@ const ToDoList = () => {
           </TouchableOpacity>
           <Text style={t.done ? styles.completedTask : styles.normalTask}>{t.text}</Text>
         </View>
-        ))}
+      ))}
         </View>
-        <View
-          style={{
-              flex: 1,
-            }}
-        >
-          <TextInput 
-            value={task.text}
-            onChangeText={(text) => setTask({text: text, done: false})}
-            style={styles.textInput}
-            placeholder='Type here to add task!'>
-          </TextInput>
+      <View style={{flex: 1}}>
         <Pressable 
           style={styles.button}
-          onPress={saveTask}>
+          onPress={handleClear}>
           <Text
           style={styles.buttonText}>
-            Add New Task
+            Clear Completed Tasks
           </Text>
           </Pressable>
       </View>
@@ -149,41 +127,24 @@ const ToDoList = () => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "#632768",
+    backgroundColor: "black",
     padding: 10,
     flexDirection: 'column',
   },
-  headingText: {
+  textInput: {
+    backgroundColor: "black",
     color: 'white',
-    fontSize: 50,
-    fontFamily: 'Montserrat_800ExtraBold',
-    paddingHorizontal: 9,
-    textDecorationLine: 'underline',
-    marginHorizontal: 'auto'
-  },
-  headingContainer: {
-    flex: 1,
-  },
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 20,
-    paddingHorizontal: 32,
-    borderRadius: 4,
-    elevation: 3,
-    marginVertical: 8 ,
-    backgroundColor: 'black',
-  },
-  buttonText: {
     fontSize: 20,
-    lineHeight: 21,
-    fontWeight: 'bold',
-    letterSpacing: 0.25,
-    color: 'white',
+    height: 70,
+    borderWidth: 2,
+    borderColor: '#54428e',
+    borderRadius: 30,
+    paddingHorizontal: 15,
+    marginHorizontal: 'auto',
+    marginBottom:10,
   },
   taskContainer: {
-    padding: 15,
-    backgroundColor:'#fff',
+    paddingHorizontal: 15,
     borderRadius: 15,
     flexDirection: 'row',
     alignItems: 'center',
@@ -205,21 +166,34 @@ const styles = StyleSheet.create({
   },
   completedTask: {
     textDecorationLine: 'line-through',
+    color: '#54428e',
     fontSize: 30,
+    textAlign: 'center',
     flex: 9,
   },
   normalTask: {
+    color: 'white',
     fontSize: 30,
+    textAlign: 'center',
     flex: 9,
   },
-  textInput: {
-    backgroundColor: "#daa6dd",
-    height: 60,
-    borderWidth: 4,
-    borderColor: '#461c4a',
-    borderRadius: 30,
-    paddingHorizontal: 15,
-    marginHorizontal: 'auto'
+  button: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+    paddingHorizontal: 32,
+    borderRadius: 4,
+    elevation: 3,
+    marginHorizontal: 8 ,
+    borderWidth: 2,
+    borderColor: '#c5076c',
+  },
+  buttonText: {
+    fontSize: 20,
+    lineHeight: 21,
+    fontWeight: 'bold',
+    letterSpacing: 0.25,
+    color: 'white',
   },
 })
 export default ToDoList;

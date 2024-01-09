@@ -1,4 +1,4 @@
-export const flowers = {
+export const flowerImages = {
   'sakura': {
     0: require('./Flowers/Sakura/SAKURA0.png'),
     1: require('./Flowers/Sakura/SAKURA1.png'),

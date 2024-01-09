@@ -1,21 +1,10 @@
 import * as React from 'react';
-import { FLOWER1, FLOWER2, FLOWER3, FLOWER4, FLOWER5, FLOWER6, FLOWER7, FLOWER8, FLOWERCENTER } from '../assets/images';
+import { FLOWER1, FLOWER2, FLOWER3, FLOWER4, FLOWER5, FLOWER6, FLOWER7, FLOWER8, FLOWERCENTER, flowerImages } from '../assets/images';
 import { useState, useEffect } from 'react';
 import { useFonts, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StyleSheet, Image, Text, View, TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView } from 'react-native';
-
-const flowerImages = [
-  FLOWERCENTER,
-  FLOWER1,
-  FLOWER2,
-  FLOWER3,
-  FLOWER4,
-  FLOWER5,
-  FLOWER6,
-  FLOWER7,
-  FLOWER8,
-];
+import { StyleSheet, Image, Text, View, TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, ScrollView } from 'react-native';
+import flowers from '../logic/setFlowers';
 
 const ToDoList = () => {
   const [task, setTask] = useState({text: '', done: false});
@@ -57,27 +46,6 @@ const ToDoList = () => {
     }
   }
 
-  const flowerPathLogic = (score) => {
-    const completeFlowers = Math.floor(score / 8);
-    const remainder = score % (flowerImages.length - 1);
-
-    let flowerRoutes = [];
-
-    for (let i = 0; i < completeFlowers; i++) {
-      flowerRoutes.push(8);
-    }
-
-    if (remainder !== 0) {
-      flowerRoutes.push(remainder);
-    }
-
-    if (flowerRoutes.length === 0) {
-      return [0];
-    }
-    console.log(flowerRoutes)
-    return flowerRoutes;
-  }
-
   const loadData = async () => {
     try {
       let storedDate = await AsyncStorage.getItem('date')
@@ -109,7 +77,7 @@ const ToDoList = () => {
     const loadFonts = async () => {
       await AsyncStorage.setItem('score', score.toString());
       await loadData();
-      setFlowerPaths(flowerPathLogic(score))
+      setFlowerPaths(flowers(score))
     }
     loadFonts();
   }, []);
@@ -140,14 +108,14 @@ const ToDoList = () => {
         updatedTasks[index].done = !updatedTasks[index].done
         setScore((prevScore) => {
           const newScore = prevScore + 1
-          setFlowerPaths(flowerPathLogic(newScore))
+          setFlowerPaths(flowers(newScore))
           return newScore
         })
       } else {
         updatedTasks[index].done = !updatedTasks[index].done
         setScore((prevScore) => {
           const newScore = prevScore - 1
-          setFlowerPaths(flowerPathLogic(newScore))
+          setFlowerPaths(flowers(newScore))
           return newScore
         })
       }
@@ -181,11 +149,12 @@ const ToDoList = () => {
         {/*   </Pressable> */}
       </View>
     <View style={{flex: 5}}>
-      <View style={styles.imageContainer}>
-        {flowerPaths.map((number, index) => (
-            <Image key={index} source={flowerImages[number]} style={styles.image}/>
+      <ScrollView horizontal={true} style={styles.imageContainer}>
+        {flowerPaths.slice(0).reverse().map((flower, index) => (
+            <Image key={index} source={flowerImages[flower.name][flower.routeNum]} style={styles.image}/>
         ))}
-      </View>
+      </ScrollView>
+          <ScrollView style={styles.tasksView}>
       {tasks.map((t, index) => (
         <View key={index} style={styles.taskContainer}>
           <TouchableOpacity
@@ -210,6 +179,7 @@ const ToDoList = () => {
           <Text style={t.done ? styles.completedTask : styles.normalTask}>{t.text}</Text>
         </View>
       ))}
+          </ScrollView>
         </View>
         <TextInput 
           value={task.text}
@@ -231,13 +201,20 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
   },
     imageContainer: {
+    flexGrow: 1,
+    maxHeight: 85,
     flexDirection: 'row',
+    marginHorizontal: 10,
+    overflow: 'scroll',
   },
     image: {
-    width: 100,
-    height: 100,
-    margin: 10,
+    width: 80,
+    height: 80,
     resizeMode: 'cover',
+  },
+  tasksView: {
+    flexGrow: 15,
+
   },
   textInput: {
     backgroundColor: "black",
@@ -262,8 +239,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
    checkbox: {
-    width: 30,
-    height: 30,
+    width: 20,
+    height: 20,
     borderRadius: 15,
     borderWidth: 1,
     justifyContent: 'center',
@@ -275,13 +252,13 @@ const styles = StyleSheet.create({
   completedTask: {
     textDecorationLine: 'line-through',
     color: '#54428e',
-    fontSize: 30,
+    fontSize: 20,
     textAlign: 'center',
     flex: 9,
   },
   normalTask: {
     color: 'white',
-    fontSize: 30,
+    fontSize: 20,
     textAlign: 'center',
     flex: 9,
   },

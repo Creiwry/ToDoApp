@@ -3,7 +3,7 @@ import { FLOWER1, FLOWER2, FLOWER3, FLOWER4, FLOWER5, FLOWER6, FLOWER7, FLOWER8,
 import { useState, useEffect } from 'react';
 import { useFonts, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StyleSheet, Image, Text, View, TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, ScrollView } from 'react-native';
+import { StyleSheet, Image, Text, View, TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, ScrollView, PanResponder } from 'react-native';
 import flowers from '../logic/setFlowers';
 
 const ToDoList = () => {
@@ -12,6 +12,7 @@ const ToDoList = () => {
   const [lastDate, setLastdate] = useState(null);
   const [score, setScore] = useState(0);
   const [flowerPaths, setFlowerPaths] = useState([]);
+  const [dx, setDx] = useState(0);
 
   let [fontsLoaded] = useFonts({
     Montserrat_800ExtraBold,
@@ -101,6 +102,37 @@ const ToDoList = () => {
     }
   }
 
+  const panResponder = (task) => {
+    let dx = 0;
+
+    return PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, gestureState) => {
+        dx = gestureState.dx;
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        if (dx > 65) {
+          handleDeleteTask(task);
+        }
+      },
+    });
+  };
+
+  const handleDeleteTask = async (taskToDelete) => {
+    try {
+      const updatedTasks = []
+      tasks.forEach((task) => {
+        if (task!==taskToDelete) {
+          updatedTasks.push(task)
+        }
+      })
+      await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
+      setTasks(updatedTasks)
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const toggleDone = async (index) => {
     try {
       const updatedTasks = [...tasks]
@@ -159,7 +191,7 @@ const ToDoList = () => {
             Tasks:
             </Text>
       {tasks.map((t, index) => (
-        <View key={index} style={styles.taskContainer}>
+        <View {...panResponder(t).panHandlers} key={index} style={styles.taskContainer}>
           <TouchableOpacity
             key={index}
             style={styles.checkboxContainer}
@@ -169,7 +201,7 @@ const ToDoList = () => {
               style={[
                 styles.checkbox,
                 {
-                  backgroundColor: t.done ? '#54428e' : 'white',
+                  backgroundColor: t.done ? '#54428e' : '#a9e190',
                   borderColor: t.done ? '#54428e' : 'black',
                 },
               ]}
@@ -225,7 +257,7 @@ const styles = StyleSheet.create({
   textInput: {
     backgroundColor: "#a9e190",
     fontSize: 20,
-    height: 70,
+    height: 60,
     borderWidth: 2,
     borderRadius: 30,
     paddingHorizontal: 15,
@@ -246,12 +278,12 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 15,
-    borderWidth: 1,
+    borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkIcon: {
-    color: 'white',
+    color: '#a9e190',
   },
   completedTask: {
     textDecorationLine: 'line-through',

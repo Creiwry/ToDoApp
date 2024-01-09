@@ -19,7 +19,7 @@ const ToDoList = () => {
 
   const saveTask = async () => {
     try {
-      const updatedTasks = [...tasks, task];
+      const updatedTasks = [task, ...tasks];
       await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
       setTasks(updatedTasks);
       setTask({text: '', done: false});
@@ -155,6 +155,9 @@ const ToDoList = () => {
         ))}
       </ScrollView>
           <ScrollView style={styles.tasksView}>
+            <Text style={styles.taskHeading}>
+            Tasks:
+            </Text>
       {tasks.map((t, index) => (
         <View key={index} style={styles.taskContainer}>
           <TouchableOpacity
@@ -186,7 +189,6 @@ const ToDoList = () => {
           onChangeText={(text) => setTask({text: text, done: false})}
           onSubmitEditing={saveTask}
           style={styles.textInput}
-          placeholderTextColor='white'
           placeholder='Type here to add task!'>
         </TextInput>
     </View>
@@ -196,7 +198,7 @@ const ToDoList = () => {
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: "black",
+    backgroundColor: "#a9e190",
     padding: 10,
     flexDirection: 'column',
   },
@@ -214,15 +216,17 @@ const styles = StyleSheet.create({
   },
   tasksView: {
     flexGrow: 15,
-
+    marginLeft: 10,
+  },
+  taskHeading: {
+    fontSize: 30,
+    fontFamily: "Montserrat_800ExtraBold",
   },
   textInput: {
-    backgroundColor: "black",
-    color: 'white',
+    backgroundColor: "#a9e190",
     fontSize: 20,
     height: 70,
     borderWidth: 2,
-    borderColor: '#54428e',
     borderRadius: 30,
     paddingHorizontal: 15,
     marginHorizontal: 'auto',
@@ -257,7 +261,6 @@ const styles = StyleSheet.create({
     flex: 9,
   },
   normalTask: {
-    color: 'white',
     fontSize: 20,
     textAlign: 'center',
     flex: 9,
@@ -271,7 +274,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     marginHorizontal: 8 ,
     borderWidth: 2,
-    borderColor: '#c5076c',
+    backgroundColor: "#8C86AA",
   },
   buttonText: {
     fontSize: 20,

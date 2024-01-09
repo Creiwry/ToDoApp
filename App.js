@@ -8,6 +8,7 @@ const Stack = createNativeStackNavigator();
 
 import Navbar from './components/Navbar';
 import ToDoList from './screens/ToDoList';
+import MyFlowers from './screens/MyFlowers';
 
 const App = () => {
   return (
@@ -20,6 +21,7 @@ const App = () => {
           }}
       >
         <Stack.Screen name="ToDoList" component={ToDoList} />
+        <Stack.Screen name="MyFlowers" component={MyFlowers} />
       </Stack.Navigator>
     </NavigationContainer>
   );

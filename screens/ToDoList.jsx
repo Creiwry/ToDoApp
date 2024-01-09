@@ -180,49 +180,49 @@ const ToDoList = () => {
         {/*   </Text> */}
         {/*   </Pressable> */}
       </View>
-    <View style={{flex: 5}}>
-      <ScrollView horizontal={true} style={styles.imageContainer}>
-        {flowerPaths.slice(0).reverse().map((flower, index) => (
-            <Image key={index} source={flowerImages[flower.name][flower.routeNum]} style={styles.image}/>
-        ))}
-      </ScrollView>
-          <ScrollView style={styles.tasksView}>
-            <Text style={styles.taskHeading}>
-            Tasks:
-            </Text>
-      {tasks.map((t, index) => (
-        <View {...panResponder(t).panHandlers} key={index} style={styles.taskContainer}>
-          <TouchableOpacity
-            key={index}
-            style={styles.checkboxContainer}
-            onPress={() => toggleDone(index)}
-          >
-            <View
-              style={[
-                styles.checkbox,
-                {
-                  backgroundColor: t.done ? '#54428e' : '#a9e190',
-                  borderColor: t.done ? '#54428e' : 'black',
-                },
-              ]}
-            >
-              {task.done && (
-                <Text style={styles.checkIcon}>{'\u2713'}</Text>
-              )}
+      <View style={{flex: 5}}>
+        <ScrollView horizontal={true} style={styles.imageContainer}>
+          {flowerPaths.slice(0).reverse().map((flower, index) => (
+              <Image key={index} source={flowerImages[flower.name][flower.routeNum]} style={styles.image}/>
+          ))}
+        </ScrollView>
+        <ScrollView style={styles.tasksView}>
+          <Text style={styles.taskHeading}>
+          Tasks:
+          </Text>
+          {tasks.map((t, index) => (
+            <View {...panResponder(t).panHandlers} key={index} style={styles.taskContainer}>
+              <TouchableOpacity
+                key={index}
+                style={styles.checkboxContainer}
+                onPress={() => toggleDone(index)}
+              >
+                <View
+                  style={[
+                    styles.checkbox,
+                    {
+                      backgroundColor: t.done ? '#54428e' : '#a9e190',
+                      borderColor: t.done ? '#54428e' : 'black',
+                    },
+                  ]}
+                >
+                  {task.done && (
+                    <Text style={styles.checkIcon}>{'\u2713'}</Text>
+                  )}
+                </View>
+              </TouchableOpacity>
+              <Text style={t.done ? styles.completedTask : styles.normalTask}>{t.text}</Text>
             </View>
-          </TouchableOpacity>
-          <Text style={t.done ? styles.completedTask : styles.normalTask}>{t.text}</Text>
-        </View>
-      ))}
-          </ScrollView>
-        </View>
-        <TextInput 
-          value={task.text}
-          onChangeText={(text) => setTask({text: text, done: false})}
-          onSubmitEditing={saveTask}
-          style={styles.textInput}
-          placeholder='Type here to add task!'>
-        </TextInput>
+          ))}
+        </ScrollView>
+      </View>
+      <TextInput 
+        value={task.text}
+        onChangeText={(text) => setTask({text: text, done: false})}
+        onSubmitEditing={saveTask}
+        style={styles.textInput}
+        placeholder='Type here to add task!'>
+      </TextInput>
     </View>
   )
 }

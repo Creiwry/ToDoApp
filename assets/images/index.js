@@ -1,9 +1,58 @@
-export const FLOWERCENTER = require('./flower-purple-center.png');
-export const FLOWER1 = require('./flower-purple1.png');
-export const FLOWER2 = require('./flower-purple2.png');
-export const FLOWER3 = require('./flower-purple3.png');
-export const FLOWER4 = require('./flower-purple4.png');
-export const FLOWER5 = require('./flower-purple5.png');
-export const FLOWER6 = require('./flower-purple6.png');
-export const FLOWER7 = require('./flower-purple7.png');
-export const FLOWER8 = require('./flower-purple8.png');
+export const flowers = {
+  'sakura': {
+    0: require('./Flowers/Sakura/SAKURA0.png'),
+    1: require('./Flowers/Sakura/SAKURA1.png'),
+    2: require('./Flowers/Sakura/SAKURA2.png'),
+    3: require('./Flowers/Sakura/SAKURA3.png'),
+    4: require('./Flowers/Sakura/SAKURA4.png'),
+    5: require('./Flowers/Sakura/SAKURA5.png'),
+  },
+  'sakuraRed': {
+    0: require('./Flowers/Red-Sakura/REDSAKURA0.png'),
+    1: require('./Flowers/Red-Sakura/REDSAKURA1.png'),
+    2: require('./Flowers/Red-Sakura/REDSAKURA2.png'),
+    3: require('./Flowers/Red-Sakura/REDSAKURA3.png'),
+    4: require('./Flowers/Red-Sakura/REDSAKURA4.png'),
+    5: require('./Flowers/Red-Sakura/REDSAKURA5.png'),
+  },
+  'sakuraPurple': {
+    0: require('./Flowers/Purple-Sakura/PURPLESAKURA0.png'),
+    1: require('./Flowers/Purple-Sakura/PURPLESAKURA1.png'),
+    2: require('./Flowers/Purple-Sakura/PURPLESAKURA2.png'),
+    3: require('./Flowers/Purple-Sakura/PURPLESAKURA3.png'),
+    4: require('./Flowers/Purple-Sakura/PURPLESAKURA4.png'),
+    5: require('./Flowers/Purple-Sakura/PURPLESAKURA5.png'),
+  },
+  'sakuraPeach': {
+    0: require('./Flowers/Peach-Sakura/PEACHSAKURA0.png'),
+    1: require('./Flowers/Peach-Sakura/PEACHSAKURA1.png'),
+    2: require('./Flowers/Peach-Sakura/PEACHSAKURA2.png'),
+    3: require('./Flowers/Peach-Sakura/PEACHSAKURA3.png'),
+    4: require('./Flowers/Peach-Sakura/PEACHSAKURA4.png'),
+    5: require('./Flowers/Peach-Sakura/PEACHSAKURA5.png'),
+  },
+  'sakuraOrange': {
+    0: require('./Flowers/Orange-Sakura/ORANGESAKURA0.png'),
+    1: require('./Flowers/Orange-Sakura/ORANGESAKURA1.png'),
+    2: require('./Flowers/Orange-Sakura/ORANGESAKURA2.png'),
+    3: require('./Flowers/Orange-Sakura/ORANGESAKURA3.png'),
+    4: require('./Flowers/Orange-Sakura/ORANGESAKURA4.png'),
+    5: require('./Flowers/Orange-Sakura/ORANGESAKURA5.png'),
+  },
+  'sakuraGreen': {
+    0: require('./Flowers/Green-Sakura/GREENSAKURA0.png'),
+    1: require('./Flowers/Green-Sakura/GREENSAKURA1.png'),
+    2: require('./Flowers/Green-Sakura/GREENSAKURA2.png'),
+    3: require('./Flowers/Green-Sakura/GREENSAKURA3.png'),
+    4: require('./Flowers/Green-Sakura/GREENSAKURA4.png'),
+    5: require('./Flowers/Green-Sakura/GREENSAKURA5.png'),
+  },
+  'sakuraBlue': {
+    0: require('./Flowers/Blue-Sakura/BLUESAKURA0.png'),
+    1: require('./Flowers/Blue-Sakura/BLUESAKURA1.png'),
+    2: require('./Flowers/Blue-Sakura/BLUESAKURA2.png'),
+    3: require('./Flowers/Blue-Sakura/BLUESAKURA3.png'),
+    4: require('./Flowers/Blue-Sakura/BLUESAKURA4.png'),
+    5: require('./Flowers/Blue-Sakura/BLUESAKURA5.png'),
+  }
+}

@@ -162,7 +162,7 @@ const ToDoList = () => {
     <View 
       style={styles.screen}
     >
-      <View style={{flex: 1, flexDirection: 'row'}}>
+      <View style={{flex: 1}}>
         <Pressable 
           style={styles.button}
           onPress={handleClear}>
@@ -171,14 +171,14 @@ const ToDoList = () => {
             Clear Tasks
           </Text>
           </Pressable>
-        <Pressable 
-          style={styles.button}
-          onPress={()=>setScore(0)}>
-          <Text
-          style={styles.buttonText}>
-            Clear Score 
-          </Text>
-          </Pressable>
+        {/* <Pressable  */}
+        {/*   style={styles.button} */}
+        {/*   onPress={()=>setScore(0)}> */}
+        {/*   <Text */}
+        {/*   style={styles.buttonText}> */}
+        {/*     Clear Score  */}
+        {/*   </Text> */}
+        {/*   </Pressable> */}
       </View>
     <View style={{flex: 5}}>
       <View style={styles.imageContainer}>

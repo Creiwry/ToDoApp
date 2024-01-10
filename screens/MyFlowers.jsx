@@ -7,15 +7,17 @@ import { flowerImages } from "../assets/images"
 const usePanHandlers = (displayFlowers) => {
   const panValues = displayFlowers.map(() => new Animated.ValueXY());
 
+  const handlePanResponderMove = (index, _, gestureState) => {
+    console.log('PanResponderMove', index, gestureState.dx, gestureState.dy);
+    panValues[index].setValue({ x: gestureState.dx, y: gestureState.dy });
+  };
+
   const getPanResponder = (index) =>
     PanResponder.create({
       onMoveShouldSetPanResponder: () => true,
-      onPanResponderMove: (_, gestureState) => {
-        Animated.event([null, { dx: panValues[index].x, dy: panValues[index].y }], {
-          useNativeDriver: false,
-        })(_, gestureState);
-      },
+      onPanResponderMove: handlePanResponderMove.bind(null, index),
       onPanResponderRelease: (_, gestureState) => {
+        console.log('Release');
         Animated.spring(panValues[index], {
           toValue: { x: 0, y: 0 },
           useNativeDriver: false,
@@ -30,54 +32,10 @@ const usePanHandlers = (displayFlowers) => {
   return { panValues, panResponders };
 };
 
-const MyFlowers = () => {
-  const [displayFlowers, setDisplayFlowers] = useState([])
+const MyFlowers = ({myFlowers}) => {
+  console.log('my flowers: ' ,myFlowers)
   const [loading, setLoading] = useState(true);
-  const { panValues, panResponders } = usePanHandlers(displayFlowers);
-
-  const loadData = async () => {
-    try {
-      let storedScores = await AsyncStorage.getItem('pastScores')
-      storedScores = JSON.parse(storedScores)
-      console.log(storedScores)
-      let incomingFlowers = []
-      storedScores.map((score) => {
-        let flowersToAdd = flowers(score.score)
-        flowersToAdd.forEach((flower)=>{
-          if(flower.routeNum === 5) {
-            incomingFlowers.push(flower)
-          }
-        })
-      })
-      setDisplayFlowers(incomingFlowers)
-    } catch (error) {
-      console.error('Error fetching tasks: ', error)
-    } finally {
-      setLoading(false);
-      console.log('finished loading')
-
-    }
-  };
-
-  const mockScores = [
-    { score: 10, date: '1/3/2024' },
-    { score: 7, date: '1/4/2024' },
-    { score: 20, date: '1/5/2024' },
-  ];
-
-  const mockAsyncStorage = async () => {
-    try {
-      await AsyncStorage.setItem('pastScores', JSON.stringify(mockScores));
-      console.log('Mock data stored successfully');
-    } catch (error) {
-      console.error('Error storing mock data: ', error);
-    }
-  };
-
-  useEffect(()=>{
-    mockAsyncStorage();
-    loadData();
-  },[setLoading]);
+  const { panValues, panResponders } = usePanHandlers(myFlowers);
 
   if(loading) {
     return (
@@ -94,7 +52,7 @@ const MyFlowers = () => {
       <View style={styles.flowersContainer}>
         {console.log("loading: ", loading)}
         {console.log(panValues)}
-        {displayFlowers.map((flower, index) => (
+        {myFlowers.map((flower, index) => (
           <Animated.View
             key={index}
           style={{
@@ -128,7 +86,6 @@ const styles = StyleSheet.create({
     image: {
     width: 80,
     height: 80,
-    resizeMode: 'cover',
   },
 
 })

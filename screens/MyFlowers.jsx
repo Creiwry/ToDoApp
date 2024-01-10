@@ -1,13 +1,39 @@
 import AsyncStorage from "@react-native-async-storage/async-storage"
-import { useEffect, useState } from "react"
-import { View, Text, StyleSheet, Image } from "react-native"
+import { useEffect, useMemo, useRef, useState } from "react"
+import { View, Text, StyleSheet, Image, Animated, PanResponder, ActivityIndicator } from "react-native"
 import flowers from "../logic/setFlowers"
 import { flowerImages } from "../assets/images"
 
+const usePanHandlers = (displayFlowers) => {
+  const panValues = displayFlowers.map(() => new Animated.ValueXY());
+
+  const getPanResponder = (index) =>
+    PanResponder.create({
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderMove: (_, gestureState) => {
+        Animated.event([null, { dx: panValues[index].x, dy: panValues[index].y }], {
+          useNativeDriver: false,
+        })(_, gestureState);
+      },
+      onPanResponderRelease: (_, gestureState) => {
+        Animated.spring(panValues[index], {
+          toValue: { x: 0, y: 0 },
+          useNativeDriver: false,
+        }).start();
+      },
+    });
+
+  const panResponders = useMemo(() => displayFlowers.map((_, index) => getPanResponder(index)), [
+    displayFlowers,
+  ]);
+
+  return { panValues, panResponders };
+};
+
 const MyFlowers = () => {
   const [displayFlowers, setDisplayFlowers] = useState([])
-  const [flower, setFlower] = useState({date: '', color: ''})
-  const [oldScores, setOldScores] = useState([])
+  const [loading, setLoading] = useState(true);
+  const { panValues, panResponders } = usePanHandlers(displayFlowers);
 
   const loadData = async () => {
     try {
@@ -26,6 +52,10 @@ const MyFlowers = () => {
       setDisplayFlowers(incomingFlowers)
     } catch (error) {
       console.error('Error fetching tasks: ', error)
+    } finally {
+      setLoading(false);
+      console.log('finished loading')
+
     }
   };
 
@@ -47,7 +77,13 @@ const MyFlowers = () => {
   useEffect(()=>{
     mockAsyncStorage();
     loadData();
-  },[]);
+  },[setLoading]);
+
+  if(loading) {
+    return (
+      <ActivityIndicator size="large" color="#0000ff" />
+    )
+  }
 
 
   return(
@@ -56,9 +92,18 @@ const MyFlowers = () => {
         This month:
       </Text>
       <View style={styles.flowersContainer}>
+        {console.log("loading: ", loading)}
+        {console.log(panValues)}
         {displayFlowers.map((flower, index) => (
-        <Image key={index} source={flowerImages[flower.name][5]} style={styles.image} />
-
+          <Animated.View
+            key={index}
+          style={{
+              transform: [{translateX: panValues[index].x}, {translateY: panValues[index].y}]
+            }}
+            {...panResponders[index].panHandlers}
+          >
+            <Image source={flowerImages[flower.name][5]} style={styles.image} />
+          </Animated.View>
         ))}
       </View>
     </View>

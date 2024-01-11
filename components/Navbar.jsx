@@ -21,17 +21,17 @@ const Navbar = () => {
           To Do List
         </Text>
       </Pressable>
-      <Pressable
-        onPress={() => navigation.navigate('MyFlowers')}
-      >
-        <Text style={{
-        color: 'white',
-        fontSize: 30,
-        fontWeight: 'bold',
-      }}>
-          My Flowers
-        </Text>
-      </Pressable>
+      {/* <Pressable */}
+      {/*   onPress={() => navigation.navigate('MyFlowers')} */}
+      {/* > */}
+      {/*   <Text style={{ */}
+      {/*   color: 'white', */}
+      {/*   fontSize: 30, */}
+      {/*   fontWeight: 'bold', */}
+      {/* }}> */}
+      {/*     My Flowers */}
+      {/*   </Text> */}
+      {/* </Pressable> */}
     </StyledView>
   )
 }

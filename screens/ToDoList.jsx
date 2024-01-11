@@ -1,105 +1,94 @@
-import * as React from 'react';
-import { FLOWER1, FLOWER2, FLOWER3, FLOWER4, FLOWER5, FLOWER6, FLOWER7, FLOWER8, FLOWERCENTER, flowerImages } from '../assets/images';
+import React from 'react';
 import { useState, useEffect } from 'react';
 import { useFonts, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { StyleSheet, Image, Text, View, TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, ScrollView, PanResponder } from 'react-native';
-import flowers from '../logic/setFlowers';
+import { StyleSheet, Image, Text, View, TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, ScrollView, PanResponder, ActivityIndicator, Keyboard } from 'react-native';
+import flowerDisplay from '../logic/setFlowers';
+import {flowerImages} from '../assets/images';
+import { styles } from '../style';
 
 const ToDoList = () => {
   const [task, setTask] = useState({text: '', done: false});
-  const [tasks, setTasks] = useState([]);
-  const [lastDate, setLastdate] = useState(null);
+  const [tasks, setTasks] = useState([])
+  const [flower, setFlower] = useState({color:'sakura', petalNum: 0})
+  const [currencyFlowerColor, setCurrencyFlowerColor] = useState('sakuraBlue')
+  const [flowerCount, setFlowerCount] = useState(0)
   const [score, setScore] = useState(0);
-  const [flowerPaths, setFlowerPaths] = useState([]);
-  const [dx, setDx] = useState(0);
+  const [initialDataLoadComplete, setInitialDataLoadComplete] = useState(false)
+  const [isInputFocused, setIsInputFocused] = useState(false)
 
   let [fontsLoaded] = useFonts({
     Montserrat_800ExtraBold,
   });
 
-  const saveTask = async () => {
-    try {
-      const updatedTasks = [task, ...tasks];
-      await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
-      setTasks(updatedTasks);
-      setTask({text: '', done: false});
-    } catch (error) {
-      console.error('Error saving task: ', error)
+  useEffect(() => {
+    const loadFonts = async () => {
+      await loadData();
     }
-  };
+    loadFonts();
+    const keyboardDidShowListener = Keyboard.addListener('keyboardDidShow',
+      () => setIsInputFocused(true)
+    )
+    const keyboardDidHideListener = Keyboard.addListener('keyboardDidHide',
+      () => setIsInputFocused(false)
+    )
 
-  const saveOldData = async (oldScore, oldDate) => {
+    return () => {
+      keyboardDidHideListener.remove()
+      keyboardDidShowListener.remove()
+    }
+  }, []);
+
+  useEffect(()=>{
+    setScore(flower.petalNum)
+  },[flower])
+
+  useEffect(() => {
+    if(initialDataLoadComplete){
+      updateCurrencyFlowerColor()
+    }
+  }, [currencyFlowerColor])
+
+  const updateCurrencyFlowerColor = async () => {
     try {
-      const pastScores = await AsyncStorage.getItem('pastScores')
-      let newPastScores =[]
-      if (pastScores){
-        newPastScores = [...JSON.parse(pastScores), {date: oldDate, score: oldScore}]
-      } else {
-        newPastScores = [{date: oldDate, score: oldScore}]
-      }
-      await AsyncStorage.setItem('pastScores', JSON.stringify(newPastScores))
-      await AsyncStorage.setItem('score', '0')
-      const currentDate = new Date().toLocaleDateString();
-      await AsyncStorage.setItem('date', currentDate)
+      await AsyncStorage.setItem('currencyFlowerColor', JSON.stringify(currencyFlowerColor));
     } catch (error) {
-      console.error(error)
+      console.log('error: ', error)
     }
   }
 
   const loadData = async () => {
     try {
-      let storedDate = await AsyncStorage.getItem('date')
-      const currentDate = new Date().toLocaleDateString();
-
-      if (currentDate !== storedDate) {
-        saveOldData(storedScore, storedDate)
-      }
-
-      const storedScore = await AsyncStorage.getItem('score')
-      storedDate = await AsyncStorage.getItem('date')
-
-      if (storedScore && storedDate) {
-        setScore(parseInt(storedScore, 10));
-        setLastdate(storedDate);
-      }
 
       const fetchedTasks = await AsyncStorage.getItem('tasks');
-
       if (fetchedTasks) {
         setTasks(JSON.parse(fetchedTasks));
       }
+
+      const fetchedFlowerCount = await AsyncStorage.getItem('flowerCount')
+      if (fetchedFlowerCount) {
+        setFlowerCount(parseInt(fetchedFlowerCount, 10));
+      }
+
+      const fetchedFlower = await AsyncStorage.getItem('flower')
+      if (fetchedFlower) {
+        setFlower(JSON.parse(fetchedFlower))
+      }
+
+      const fetchedCurrencyFlowerColor = await AsyncStorage.getItem('currencyFlowerColor');
+      if (fetchedCurrencyFlowerColor) {
+        setCurrencyFlowerColor(JSON.parse(fetchedCurrencyFlowerColor));
+      }
     } catch (error) {
       console.error('Error fetching tasks: ', error)
+    } finally {
+      setInitialDataLoadComplete(true)
     }
   };
 
-  useEffect(() => {
-    const loadFonts = async () => {
-      await AsyncStorage.setItem('score', score.toString());
-      await loadData();
-      setFlowerPaths(flowers(score))
-    }
-    loadFonts();
-  }, []);
 
   if(!fontsLoaded) {
     return null;
-  }
-
-  const handleClear = async () => {
-    try {
-      const updatedTasks = []
-      tasks.forEach((task) => {
-        if (!task.done) {
-          updatedTasks.push(task)
-        }
-      })
-      await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
-      setTasks(updatedTasks)
-    } catch (error) {
-      console.error("failed to update: ", error)
-    }
   }
 
   const panResponder = (task) => {
@@ -118,6 +107,32 @@ const ToDoList = () => {
     });
   };
 
+  const saveTask = async () => {
+    try {
+      const updatedTasks = [task, ...tasks];
+      await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
+      setTasks(updatedTasks);
+      setTask({text: '', done: false});
+    } catch (error) {
+      console.error('Error saving task: ', error)
+    }
+  };
+
+  const handleClear = async () => {
+    try {
+      const updatedTasks = []
+      tasks.forEach((task) => {
+        if (!task.done) {
+          updatedTasks.push(task)
+        }
+      })
+      await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
+      setTasks(updatedTasks)
+    } catch (error) {
+      console.error("failed to update: ", error)
+    }
+  }
+
   const handleDeleteTask = async (taskToDelete) => {
     try {
       const updatedTasks = []
@@ -135,24 +150,40 @@ const ToDoList = () => {
 
   const toggleDone = async (index) => {
     try {
-      const updatedTasks = [...tasks]
+      let updatedTasks = [...tasks]
+      let updatedFlowerCount = flowerCount
+      let updatedFlower = flower
       if (!updatedTasks[index].done){
         updatedTasks[index].done = !updatedTasks[index].done
-        setScore((prevScore) => {
-          const newScore = prevScore + 1
-          setFlowerPaths(flowers(newScore))
-          return newScore
-        })
+        if(score === 4) {
+          updatedFlowerCount += 1
+          updatedTasks = updatedTasks.filter((task) => {
+            if (!task.done) {
+              return true 
+            } else {
+              return false
+            }
+          })
+          setCurrencyFlowerColor(flower.color)
+          updatedFlower = flowerDisplay(flower, 0)
+        } else {
+          updatedFlower = flowerDisplay(flower, (score + 1))
+        }
       } else {
         updatedTasks[index].done = !updatedTasks[index].done
-        setScore((prevScore) => {
-          const newScore = prevScore - 1
-          setFlowerPaths(flowers(newScore))
-          return newScore
-        })
+        if (score === 0) {
+          updatedFlowerCount -= 1
+          updatedFlower = flowerDisplay(flower, 4)
+        } else {
+          updatedFlower = flowerDisplay(flower, (score - 1))
+        }
       }
       await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
+      await AsyncStorage.setItem('flower', JSON.stringify(updatedFlower))
+      await AsyncStorage.setItem('flowerCount', JSON.stringify(updatedFlowerCount))
       setTasks(updatedTasks);
+      setFlower(updatedFlower)
+      setFlowerCount(updatedFlowerCount)
     } catch (error) {
       console.error("failed to update: ", error )
     }
@@ -162,34 +193,29 @@ const ToDoList = () => {
     <View 
       style={styles.screen}
     >
-      <View style={{flex: 1}}>
-        <Pressable 
-          style={styles.button}
-          onPress={handleClear}>
-          <Text
-          style={styles.buttonText}>
-            Clear Tasks
-          </Text>
+      <View style={[styles.topContainer,  isInputFocused ? {display: 'none'} : {display: 'flex'}]}>
+        <View style={styles.imageContainer}>
+          <Image source={flowerImages[flower.color][flower.petalNum]} style={styles.image}/>
+        </View>
+        <View style={styles.currencyAndButtonContainer}>
+          <View style={styles.flowerCountContainer}>
+            <Text style={styles.currencyText}>
+              {flowerCount}
+            </Text>
+            <Image source={flowerImages[currencyFlowerColor][5]} style={styles.currencyImage}/>
+          </View>
+          <Pressable 
+            style={styles.button}
+            onPress={handleClear}>
+            <Text
+            style={styles.buttonText}>
+              Clear
+            </Text>
           </Pressable>
-        {/* <Pressable  */}
-        {/*   style={styles.button} */}
-        {/*   onPress={()=>setScore(0)}> */}
-        {/*   <Text */}
-        {/*   style={styles.buttonText}> */}
-        {/*     Clear Score  */}
-        {/*   </Text> */}
-        {/*   </Pressable> */}
+        </View>
       </View>
-      <View style={{flex: 5}}>
-        <ScrollView horizontal={true} style={styles.imageContainer}>
-          {flowerPaths.slice(0).reverse().map((flower, index) => (
-              <Image key={index} source={flowerImages[flower.name][flower.routeNum]} style={styles.image}/>
-          ))}
-        </ScrollView>
+      <View style={{flex: 7}}>
         <ScrollView style={styles.tasksView}>
-          <Text style={styles.taskHeading}>
-          Tasks:
-          </Text>
           {tasks.map((t, index) => (
             <View {...panResponder(t).panHandlers} key={index} style={styles.taskContainer}>
               <TouchableOpacity
@@ -227,93 +253,4 @@ const ToDoList = () => {
   )
 }
 
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: "#a9e190",
-    padding: 10,
-    flexDirection: 'column',
-  },
-    imageContainer: {
-    flexGrow: 1,
-    maxHeight: 85,
-    flexDirection: 'row',
-    marginHorizontal: 10,
-    overflow: 'scroll',
-  },
-    image: {
-    width: 80,
-    height: 80,
-    resizeMode: 'cover',
-  },
-  tasksView: {
-    flexGrow: 15,
-    marginLeft: 10,
-  },
-  taskHeading: {
-    fontSize: 30,
-    fontFamily: "Montserrat_800ExtraBold",
-  },
-  textInput: {
-    backgroundColor: "#a9e190",
-    fontSize: 20,
-    height: 60,
-    borderWidth: 2,
-    borderRadius: 30,
-    paddingHorizontal: 15,
-    marginHorizontal: 'auto',
-    marginBottom:10,
-  },
-  taskContainer: {
-    paddingHorizontal: 15,
-    borderRadius: 15,
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 5,
-  },
-  checkboxContainer: {
-    flex: 1,
-  },
-   checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 15,
-    borderWidth: 2,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  checkIcon: {
-    color: '#a9e190',
-  },
-  completedTask: {
-    textDecorationLine: 'line-through',
-    color: '#54428e',
-    fontSize: 20,
-    textAlign: 'center',
-    flex: 9,
-  },
-  normalTask: {
-    fontSize: 20,
-    textAlign: 'center',
-    flex: 9,
-  },
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 20,
-    paddingHorizontal: 32,
-    borderRadius: 4,
-    elevation: 3,
-    marginHorizontal: 8 ,
-    borderWidth: 2,
-    backgroundColor: "#8C86AA",
-  },
-  buttonText: {
-    fontSize: 20,
-    lineHeight: 21,
-    fontWeight: 'bold',
-    letterSpacing: 0.25,
-    color: 'white',
-  },
-})
 export default ToDoList;

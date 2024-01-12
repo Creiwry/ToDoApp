@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useState, useEffect } from 'react';
-import { useFonts, Montserrat_800ExtraBold } from '@expo-google-fonts/montserrat';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { StyleSheet, Image, Text, View, TextInput, TouchableOpacity, Pressable, KeyboardAvoidingView, ScrollView, PanResponder, ActivityIndicator, Keyboard } from 'react-native';
 import flowerDisplay from '../logic/setFlowers';
 import {flowerImages} from '../assets/images';
 import { styles } from '../style';
+import Animated, { Easing, useSharedValue, withDecay, withSequence, withSpring, withTiming } from 'react-native-reanimated';
 
+AsyncStorage.removeItem('flower')
 const ToDoList = () => {
   const [task, setTask] = useState({text: '', done: false});
   const [tasks, setTasks] = useState([])
@@ -16,10 +17,10 @@ const ToDoList = () => {
   const [score, setScore] = useState(0);
   const [initialDataLoadComplete, setInitialDataLoadComplete] = useState(false)
   const [isInputFocused, setIsInputFocused] = useState(false)
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const scaleDown = useSharedValue(1);
 
-  let [fontsLoaded] = useFonts({
-    Montserrat_800ExtraBold,
-  });
 
   useEffect(() => {
     const loadFonts = async () => {
@@ -45,9 +46,40 @@ const ToDoList = () => {
 
   useEffect(() => {
     if(initialDataLoadComplete){
+      console.log('updateCurrencyFlowerColor method before animation')
       updateCurrencyFlowerColor()
     }
   }, [currencyFlowerColor])
+
+  const startAnimation = async (updatedFlower) => {
+          console.log('animation method')
+    return new Promise((resolve) => {
+
+          console.log('currency flower color ', currencyFlowerColor)
+      setFlower({color: flower.color, petalNum: 5})
+      translateX.value = withSpring(234)
+      translateY.value = withSpring(-41, {
+      })
+      scaleDown.value = withTiming(0.45, {
+        duration: 2000,
+        easing: Easing.out(Easing.quad),
+      })
+      setTimeout(() =>{
+        translateX.value = 0 
+        translateY.value = 0
+        scaleDown.value = withTiming(1, {
+          duration: 100,
+          easing: Easing.inOut(Easing.quad),
+          callback: () => {
+          }
+        })
+      }, 2000)
+      setTimeout(() => {
+        setFlower(updatedFlower)
+        resolve()
+      }, 1500)
+    })
+  }
 
   const updateCurrencyFlowerColor = async () => {
     try {
@@ -59,7 +91,6 @@ const ToDoList = () => {
 
   const loadData = async () => {
     try {
-
       const fetchedTasks = await AsyncStorage.getItem('tasks');
       if (fetchedTasks) {
         setTasks(JSON.parse(fetchedTasks));
@@ -85,11 +116,6 @@ const ToDoList = () => {
       setInitialDataLoadComplete(true)
     }
   };
-
-
-  if(!fontsLoaded) {
-    return null;
-  }
 
   const panResponder = (task) => {
     let dx = 0;
@@ -164,7 +190,9 @@ const ToDoList = () => {
               return false
             }
           })
-          setCurrencyFlowerColor(flower.color)
+          setTimeout(() => {
+            setCurrencyFlowerColor(flower.color)
+          }, 1000)
           updatedFlower = flowerDisplay(flower, 0)
         } else {
           updatedFlower = flowerDisplay(flower, (score + 1))
@@ -182,8 +210,15 @@ const ToDoList = () => {
       await AsyncStorage.setItem('flower', JSON.stringify(updatedFlower))
       await AsyncStorage.setItem('flowerCount', JSON.stringify(updatedFlowerCount))
       setTasks(updatedTasks);
-      setFlower(updatedFlower)
-      setFlowerCount(updatedFlowerCount)
+      if (updatedFlower.petalNum === 0) {
+        await startAnimation(updatedFlower).then( result => {
+          setFlower(updatedFlower)
+          setFlowerCount(updatedFlowerCount)
+        })
+      } else {
+        setFlower(updatedFlower)
+        setFlowerCount(updatedFlowerCount)
+      }
     } catch (error) {
       console.error("failed to update: ", error )
     }
@@ -194,9 +229,19 @@ const ToDoList = () => {
       style={styles.screen}
     >
       <View style={[styles.topContainer,  isInputFocused ? {display: 'none'} : {display: 'flex'}]}>
-        <View style={styles.imageContainer}>
-          <Image source={flowerImages[flower.color][flower.petalNum]} style={styles.image}/>
-        </View>
+        <Animated.View style={
+          [
+            styles.imageContainer,
+            {
+              transform: [{translateX: translateX}],
+            }
+          ]}>
+          <Animated.View style={{transform: [{translateY: translateY}]}}>
+          <Animated.View style={{transform: [{scale: scaleDown}]}}>
+            <Image source={flowerImages[flower.color][flower.petalNum]} style={[styles.image]}/>
+            </Animated.View>
+          </Animated.View>
+        </Animated.View>
         <View style={styles.currencyAndButtonContainer}>
           <View style={styles.flowerCountContainer}>
             <Text style={styles.currencyText}>

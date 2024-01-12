@@ -29,6 +29,7 @@ export const styles = StyleSheet.create({
   currencyImage: {
     width: 90,
     height: 90,
+    zIndex: -1,
     resizeMode: 'cover',
   },
   imageContainer: {
@@ -42,6 +43,7 @@ export const styles = StyleSheet.create({
     width: 200,
     height: 200,
     margin: 0,
+    zIndex: 999,
     resizeMode: 'cover',
   },
   tasksView: {
@@ -50,11 +52,6 @@ export const styles = StyleSheet.create({
     marginVertical: 0,
     flexGrow: 15,
     marginLeft: 10,
-  },
-  taskHeading: {
-    marginBottom: 0,
-    fontSize: 30,
-    fontFamily: "Montserrat_800ExtraBold",
   },
   textInput: {
     backgroundColor: "#a9e190",
